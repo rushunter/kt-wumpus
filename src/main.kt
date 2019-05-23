@@ -9,7 +9,7 @@ var debugMode = false
 var gameState = GameState.STARTED     // поменять по умолчанию на NOT_STARTED
 
 val bats: MutableList<Int> = mutableListOf()
-val holes: MutableList<Int> = mutableListOf()
+val pits: MutableList<Int> = mutableListOf()
 var wumpus: Int = -1
 var player: Int = -1
 var arrows = 5
@@ -40,15 +40,15 @@ val neighbors = arrayOf(
 fun initMap() {
     bats.add(getFreeRoom())
     bats.add(getFreeRoom())
-    holes.add(getFreeRoom())
-    holes.add(getFreeRoom())
+    pits.add(getFreeRoom())
+    pits.add(getFreeRoom())
 
     wumpus = getFreeRoom()
     player = getFreeRoom()
 }
 
 fun getFreeRoom(): Int {
-    val rooms = (0..19).filter { x -> !bats.contains(x) && !holes.contains(x) && player != x && wumpus != x }
+    val rooms = (0..19).filter { x -> !bats.contains(x) && !pits.contains(x) && player != x && wumpus != x }
     return rooms[Random.nextInt(rooms.size)]
 }
 
@@ -64,7 +64,7 @@ fun printState() {
     println("")
     if (debugMode) {
         println("Bats: ${bats.map{x -> x+1}}")
-        println("Holes: ${holes.map{x -> x+1}}")
+        println("Pits: ${pits.map{ x -> x+1}}")
         println("Wumpus: ${wumpus+1}")
         println("Player: ${player+1}")
         println("------------------------")
@@ -73,14 +73,14 @@ fun printState() {
     val n = getNeighbors(player)
 
     println("You have $arrows arrow${if(arrows == 1) "" else "s"}")
-    println("You're in the room ${player+1}")
+    println("You're at the room ${player+1}")
     println("Tunnels to rooms ${(n.map{ x -> x+1})}")
 
     if (bats.intersect(n).isNotEmpty()) {
-        println("Bats near!")
+        println("You hear flapping nearby")
     }
-    if (holes.intersect(n).isNotEmpty()) {
-        println("Hole near!")
+    if (pits.intersect(n).isNotEmpty()) {
+        println("You feel a breeze...")
     }
     if (n.contains(wumpus)) {
         println("Wumpus near!")
@@ -93,7 +93,7 @@ fun moveTo(r: Int) {
     player = r
     when {
         player == wumpus -> gameState = GameState.WUMPUS_KILL
-        holes.contains(r) -> gameState = GameState.HOLE
+        pits.contains(r) -> gameState = GameState.HOLE
         bats.contains(r) -> gameState = GameState.BATS
     }
 }
@@ -138,19 +138,18 @@ fun main(args: Array<String>) {
         printState()
         when (gameState) {
             GameState.WUMPUS_KILL -> {
-                println("Wumpus ates you!\nYOU DIED")
+                println("You have been eaten by Wumpus!\nYOU DIED")
                 exitProcess(0)
             }
             GameState.WUMPUS_WAKE -> {
-                println("Wumpus woke up!")
                 moveWumpus()
             }
             GameState.BATS -> {
-                println("Bats are turning you to another room!")
+                println("Bats carried you to another room!")
                 moveBats()
             }
             GameState.HOLE -> {
-                println("You fell into hole!\nYOU DIED")
+                println("You fell down to the pit!\nYOU DIED")
                 exitProcess(0)
             }
             GameState.NO_ARROWS -> {
