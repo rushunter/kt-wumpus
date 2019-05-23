@@ -87,8 +87,8 @@ fun getNeighbors(r: Int): List<Int> {
 
 fun printState() {
     if (debugMode) {
-        println("Bats: ${bats+1}")
-        println("Holes: ${holes+1}")
+        println("Bats: ${bats.map{x -> x+1}}")
+        println("Holes: ${holes.map{x -> x+1}}")
         println("Wumpus: ${wumpus+1}")
         println("Player: ${player+1}")
         println("------------------------")
