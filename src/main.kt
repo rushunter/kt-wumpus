@@ -8,9 +8,6 @@ enum class GameState {
 var debugMode = false
 var gameState = GameState.STARTED     // поменять по умолчанию на NOT_STARTED
 
-val roomsFree: MutableList<Int> = mutableListOf()
-val roomsFilled: MutableList<Int> = mutableListOf()
-
 val bats: MutableList<Int> = mutableListOf()
 val holes: MutableList<Int> = mutableListOf()
 var wumpus: Int = -1
@@ -41,44 +38,22 @@ val neighbors = arrayOf(
 )
 
 fun initMap() {
-    for (i in 0..19) {
-        roomsFree.add(i)
-    }
-    fillRoom(bats, getFreeRoom())
-    fillRoom(bats, getFreeRoom())
-    fillRoom(holes, getFreeRoom())
-    fillRoom(holes, getFreeRoom())
+    bats.add(getFreeRoom())
+    bats.add(getFreeRoom())
+    holes.add(getFreeRoom())
+    holes.add(getFreeRoom())
 
     wumpus = getFreeRoom()
-    fillRoom(wumpus)
-
     player = getFreeRoom()
-    fillRoom(player)
 }
 
 fun getFreeRoom(): Int {
-    return roomsFree[Random.nextInt(roomsFree.size)]
+    val rooms = (0..19).filter { x -> !bats.contains(x) && !holes.contains(x) && player != x && wumpus != x }
+    return rooms[Random.nextInt(rooms.size)]
 }
 
 fun getRandomRoom(): Int {
     return (0..19).map { i -> i }[Random.nextInt(20)]
-}
-
-fun fillRoom(list: MutableList<Int>, r: Int): Int {
-    list.add(r)
-    roomsFilled.add(r)
-    roomsFree.remove(r)
-    return r
-}
-
-fun fillRoom(r: Int) {
-    roomsFilled.add(r)
-    roomsFree.remove(r)
-}
-
-fun emptyRoom(r: Int) {
-    roomsFree.add(r)
-    roomsFilled.remove(r)
 }
 
 fun getNeighbors(r: Int): List<Int> {
@@ -86,6 +61,7 @@ fun getNeighbors(r: Int): List<Int> {
 }
 
 fun printState() {
+    println("")
     if (debugMode) {
         println("Bats: ${bats.map{x -> x+1}}")
         println("Holes: ${holes.map{x -> x+1}}")
@@ -114,7 +90,6 @@ fun printState() {
 
 fun moveTo(r: Int) {
     gameState = GameState.STARTED
-    emptyRoom(player)
     player = r
     when {
         player == wumpus -> gameState = GameState.WUMPUS_KILL
@@ -139,14 +114,13 @@ fun shootTo(r: Int) {
 
 fun moveBats() {
     bats.remove(player)
-    bats.add(getFreeRoom())
     moveTo(getRandomRoom())
+    bats.add(getFreeRoom())
 }
 
 fun moveWumpus() {
     gameState = GameState.STARTED
     val n = getNeighbors(wumpus)
-    emptyRoom(wumpus)
     wumpus = n[Random.nextInt(3)]
     if (wumpus == player) {
         gameState = GameState.WUMPUS_KILL
