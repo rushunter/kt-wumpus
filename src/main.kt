@@ -2,11 +2,12 @@ import kotlin.random.Random
 import kotlin.system.exitProcess
 
 enum class GameState {
-    NOT_STARTED, STARTED, BATS, HOLE, WUMPUS_KILL, WUMPUS_WAKE, NO_ARROWS, WIN
+    NOT_STARTED, IN_PROGRESS, BATS, HOLE, WUMPUS_KILL, WUMPUS_WAKE, NO_ARROWS, WIN
 }
 
+const val version = "1.0.1"
 var debugMode = false
-var gameState = GameState.STARTED     // поменять по умолчанию на NOT_STARTED
+var gameState = GameState.NOT_STARTED     // поменять по умолчанию на NOT_STARTED
 
 val bats: MutableList<Int> = mutableListOf()
 val pits: MutableList<Int> = mutableListOf()
@@ -89,7 +90,7 @@ fun printState() {
 }
 
 fun moveTo(r: Int) {
-    gameState = GameState.STARTED
+    gameState = GameState.IN_PROGRESS
     player = r
     when {
         player == wumpus -> gameState = GameState.WUMPUS_KILL
@@ -102,7 +103,7 @@ fun shootTo(r: Int) {
     if (!neighbors[player].contains(r)){
         return
     }
-    gameState = GameState.STARTED
+    gameState = GameState.IN_PROGRESS
     arrows--
 
     when {
@@ -119,7 +120,7 @@ fun moveBats() {
 }
 
 fun moveWumpus() {
-    gameState = GameState.STARTED
+    gameState = GameState.IN_PROGRESS
     val n = getNeighbors(wumpus)
     wumpus = n[Random.nextInt(3)]
     if (wumpus == player) {
@@ -135,6 +136,14 @@ fun main(args: Array<String>) {
     initMap()
 
     while(true) {
+
+        if (gameState == GameState.NOT_STARTED) {
+            println("===========================")
+            println(" HUNT THE WUMPUS (v.$version)")
+            println("===========================")
+        }
+        gameState = GameState.IN_PROGRESS
+
         printState()
         when (gameState) {
             GameState.WUMPUS_KILL -> {
