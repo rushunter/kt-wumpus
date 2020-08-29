@@ -90,6 +90,9 @@ fun printState() {
 }
 
 fun moveTo(r: Int) {
+    if (!neighbors[player].contains(r)){
+        return
+    }
     gameState = GameState.IN_PROGRESS
     player = r
     when {
